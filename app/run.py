@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar,Pie
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -28,7 +28,7 @@ def tokenize(text):
 # load data
 # engine = create_engine('sqlite:///../data/YourDatabaseName.db')
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
-df = pd.read_sql_table('MessagesTable', engine)
+df = pd.read_sql_table('MessagesTable2', engine)
 
 # load model
 model = joblib.load("../models/classifier.pkl")
@@ -44,27 +44,48 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    categories = df.drop(['id','message','original','genre'],axis=1)
+    category_values = []
+    for category in categories:
+        category_values.append(categories[category].sum())
+    categories_names = categories.columns
+    
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
+                Pie(
+                    labels = genre_names,
+                    values = genre_counts
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of Message Genres'
+                
+            }
+        },
+        
+        {
+            'data': [
+                Bar(
+                    x=categories_names,
+                    y=category_values
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message based on Category',
                 'yaxis': {
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Category"
                 }
             }
         }
+        
     ]
     
     # encode plotly graphs in JSON
