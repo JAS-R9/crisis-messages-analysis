@@ -1,3 +1,15 @@
+''' This ETL program will load two files, transform them, and load the prepared version to a database
+
+Parameters:
+    argument 1: Messages CSV file
+    argument 2: Categories CSV file
+    
+Returns:
+    .db file: a database file containing the cleaned data
+
+'''
+
+
 import sys
 import pandas as pd
 import numpy as np
@@ -24,8 +36,7 @@ def clean_data(df):
     #extract column names
     category_colnames = first_row.apply(lambda x: x[0:-2])
     #assign column names to dataframe
-    categories.colnames = category_colnames
-    
+    categories.columns = category_colnames
     #convert category values to 0s and 1s
     for column in categories:
         categories[column] = categories[column].str[-1]
@@ -34,7 +45,6 @@ def clean_data(df):
     #replace the existing categories column with the splitted version
     df = df.drop('categories',axis=1)
     df = pd.concat([df,categories],axis=1)
-    
     #remove duplicates
     print("complete duplicates",df.duplicated().sum())
     print("id duplicates",df['id'].duplicated().sum())
@@ -56,7 +66,7 @@ def clean_data(df):
 
 def save_data(df, database_filename):
     engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql('MessagesTable',engine,index=False)
+    df.to_sql('MessagesTable2',engine,index=False)
 
 
 def main():
