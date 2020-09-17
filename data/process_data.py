@@ -16,6 +16,14 @@ import numpy as np
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''load the messages and categories files and merge them on id
+    Parametesr:
+        messages_filepath
+        categories_filepath
+    
+    Returns:
+        df: the dataframe from the merger of the two files
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     #printing the size of the messages and categoreis dataframe
@@ -27,6 +35,12 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
+    '''Cleans the data and return the cleaned dataframe
+    Parameters:
+        df: dataframe to clean
+    Returns:
+        df: cleanded dataframe
+    '''
     #split categoreies into seperate columns
     categories = df['categories'].str.split(';',expand=True)
     
@@ -65,6 +79,11 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    '''Save the dataframe in the database
+    Parameters:
+        df: dataframe to save
+        database_filename: the name of the database
+    '''
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('MessagesTable2',engine,index=False)
 
